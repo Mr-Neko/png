@@ -68,12 +68,12 @@ The bert can be downloaded from HuggingFace, and fpn model should be downloaded 
 ```
 pretrained_models
 |_fpn
-   |_model_final_cafdb1.pkl
+|  |_model_final_cafdb1.pkl
 |_bert
-   |_bert-base-uncased
-      |_pytorch_model.bin
-      |_bert_config.json
-   |_bert-base-uncased.txt
+|  |_bert-base-uncased
+|  |  |_pytorch_model.bin
+|  |  |_bert_config.json
+|  |_bert-base-uncased.txt
 ```
 
 ## Acknowledge

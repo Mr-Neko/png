@@ -65,7 +65,7 @@ Modify the routes in [train_net.sh](train_net.sh) according to your local paths.
 
 ## Pretrained Bert Model
 The bert can be downloaded from HuggingFace, and fpn model should be downloaded from https://dl.fbaipublicfiles.com/detectron2/COCO-PanopticSegmentation/panoptic_fpn_R_101_3x/139514519/model_final_cafdb1.pkl
-'''
+```
 pretrained_models
 |_fpn
    |_model_final_cafdb1.pkl
@@ -74,7 +74,7 @@ pretrained_models
       |_pytorch_model.bin
       |_bert_config.json
    |_bert-base-uncased.txt
-'''
+```
 
 ## Acknowledge
 

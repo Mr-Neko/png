@@ -23,8 +23,8 @@ from utils import compute_mask_IoU
 from data import PanopticNarrativeGroundingDataset, PanopticNarrativeGroundingValDataset
 # from models.knet.knet import KNet
 from models.epng_ordinary.MainModule import MainModule
-from models.knet.dice_loss import DiceLoss
-from models.knet.cross_entropy_loss import CrossEntropyLoss
+from models.dice_loss import DiceLoss
+from models.cross_entropy_loss import CrossEntropyLoss
 from models.encoder_bert import BertEncoder
 from utils.logger import setup_logger
 from utils.collate_fn import default_collate

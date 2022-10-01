@@ -8,7 +8,7 @@ __pycache__/
 
 EXP*/
 Test/
-panoptic*
+panoptic_narrative_grounding
 pretrained*/
 datasets/
 models/epng/

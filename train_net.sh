@@ -1,5 +1,5 @@
 # config setting
-EXP_NAME=EXP_ordinary_0.5
+EXP_NAME=EXP_ordinary_0.5_pluslayer
 PROJECT_ROOT='/home/jjy/PPMN'
 # EXP_NAME=debug
 DETECTRON2_CKPT=${PROJECT_ROOT}/pretrained_models/fpn/model_final_cafdb1.pkl
@@ -39,7 +39,7 @@ fi
      --num_points 200 \
      --num_stages 3 \
      --base_lr 1e-4\
-     # --ckpt_path "./${EXP_NAME}/checkpoint.pth"\
+     --ckpt_path "./${EXP_NAME}/checkpoint.pth"\
      $@
 
 if [ \( -d "datasets/coco" \) ]

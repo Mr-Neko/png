@@ -10,7 +10,7 @@ EXP*/
 Test/
 panoptic_narrative_grounding
 pretrained*/
-.datasets/
+datasets/
 models/epng/
 models/epng_conv/
 models/epng_lsa/

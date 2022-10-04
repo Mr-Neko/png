@@ -36,15 +36,16 @@ class MainModule(nn.Module):
 
         text = self.activate(self.text_linear(text))
 
-        mask = torch.nn.Sigmoid()(torch.einsum('bchw,bnc->bnhw', image_layer, text))
+        mask = torch.einsum('bchw,bnc->bnhw', image_layer, text)
         # image_mask = torch.ones((b, n, h, w)).cuda()
         # text_mask = ann_types == 0
 
         # text_mask = text_mask.unsqueeze(dim=1).unsqueeze(dim=1)
         # text_mask = text_mask.repeat([1, 8, 1, 1])
         
-        out, masks = self.encoder(text, image_layer, None, mask)
+        out, masks = self.encoder(text, image_layer, None, torch.nn.Sigmoid()(mask))
 
+        masks.insert(0, self.upsample2(mask))
         return image_layer, out, masks
 
 

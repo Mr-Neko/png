@@ -1,5 +1,5 @@
 # config setting
-EXP_NAME=EXP_ordinary_0.5_pluslayer_insert_1th_layer
+EXP_NAME=EXP_box
 PROJECT_ROOT='/home/jjy/PPMN'
 # EXP_NAME=debug
 DETECTRON2_CKPT=${PROJECT_ROOT}/pretrained_models/fpn/model_final_cafdb1.pkl

@@ -1,6 +1,6 @@
 import argparse
 
-from train_net import train
+from train_net_box import train
 
 def parse_args():
     parser = argparse.ArgumentParser(

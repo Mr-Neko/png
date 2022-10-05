@@ -48,8 +48,8 @@ class PanopticNarrativeGroundingDataset(Dataset):
             ln
             for ln in self.panoptic_narrative_grounding
             if (
-                torch.tensor([item for sublist in ln["labels"] 
-                    for item in sublist])
+                torch.tensor(np.array([item for sublist in ln["labels"] 
+                    for item in sublist]))
                 != -2
             ).any()
         ]
@@ -131,7 +131,7 @@ class PanopticNarrativeGroundingDataset(Dataset):
                 noun_vector + [0] * (self.cfg.max_sequence_length - \
                     2 - len(noun_vector))
         noun_vector_padding = [0] + noun_vector_padding + [0]
-        noun_vector_padding = torch.tensor(noun_vector_padding).long()
+        noun_vector_padding = torch.tensor(np.array(noun_vector_padding)).long()
         assert len(noun_vector_padding) == \
             self.cfg.max_sequence_length
         
@@ -144,10 +144,10 @@ class PanopticNarrativeGroundingDataset(Dataset):
 
         ann_types = [0] * len(labels)
         for i, l in enumerate(labels):
-            l = torch.tensor(l)
+            l = torch.tensor(np.array(l))
             if (l != -2).any():
                 ann_types[i] = 1 if (l != -2).sum() == 1 else 2
-        ann_types = torch.tensor(ann_types).long()
+        ann_types = torch.tensor(np.array(ann_types)).long()
         ann_types = ann_types[ann_types.nonzero()].flatten()
         assert len(ann_types) <= self.cfg.max_seg_num
         if len(ann_types) < self.cfg.max_seg_num:
@@ -173,8 +173,14 @@ class PanopticNarrativeGroundingDataset(Dataset):
         grounding_instances = torch.zeros(
             [self.cfg.max_seg_num, image_info['height'], image_info['width']]
         )
+        grounding_boxes = torch.zeros(
+            [self.cfg.max_seg_num, 4]
+        )
         j = 0
         for i, bbox in enumerate(localized_narrative["boxes"]):
+            box = torch.zeros(4)
+            box[0] = image_info['width']
+            box[1] = image_info['height']
             for b in bbox:
                 if b != [0] * 4:
                     segment_info = [
@@ -186,6 +192,15 @@ class PanopticNarrativeGroundingDataset(Dataset):
                         for c in self.panoptic["categories"]
                         if c["id"] == segment_info["category_id"]
                     ][0]
+
+                    if box[0] > b[0]:
+                        box[0] = b[0]
+                    if box[1] > b[1]:
+                        box[1] = b[1]
+                    if box[2] < b[0] + b[2]:
+                        box[2] = b[0] + b[2]
+                    if box[3] < b[1] + b[3]:
+                        box[3] = b[1] + b[3]
                     instance = torch.zeros([image_info['height'],
                             image_info['width']])
                     instance[panoptic_segm == segment_info["id"]] = 1
@@ -193,10 +208,15 @@ class PanopticNarrativeGroundingDataset(Dataset):
                     ann_categories[j] = 1 if \
                             segment_cat["isthing"] else 2
             if grounding_instances[j].sum() != 0:
+                box[2] = (box[2]-box[0]) / image_info['width']
+                box[3] = (box[3]-box[1]) / image_info['height']
+                box[0] = box[0] / image_info['width']
+                box[1] = box[1] / image_info['height']
+                grounding_boxes[j, :] = box
                 j = j + 1
         # self.vis_item(fpn_data['image'], grounding_instances, idx)
 
-        grounding_instances = {'gt': grounding_instances}
+        grounding_instances = {'gt': grounding_instances, 'gt_box': grounding_boxes}
 
         return caption, grounding_instances, \
             ann_categories, ann_types, noun_vector_padding, ret_noun_vector, fpn_data
@@ -243,8 +263,8 @@ class PanopticNarrativeGroundingValDataset(Dataset):
             ln
             for ln in self.panoptic_narrative_grounding
             if (
-                torch.tensor([item for sublist in ln["labels"] 
-                    for item in sublist])
+                torch.tensor(np.array([item for sublist in ln["labels"] 
+                    for item in sublist]))
                 != -2
             ).any()
         ]
@@ -326,7 +346,7 @@ class PanopticNarrativeGroundingValDataset(Dataset):
                 noun_vector + [0] * (self.cfg.max_sequence_length - \
                     2 - len(noun_vector))
         noun_vector_padding = [0] + noun_vector_padding + [0]
-        noun_vector_padding = torch.tensor(noun_vector_padding).long()
+        noun_vector_padding = torch.tensor(np.array(noun_vector_padding)).long()
         assert len(noun_vector_padding) == \
             self.cfg.max_sequence_length
         
@@ -344,10 +364,10 @@ class PanopticNarrativeGroundingValDataset(Dataset):
 
         ann_types = [0] * len(labels)
         for i, l in enumerate(labels):
-            l = torch.tensor(l)
+            l = torch.tensor(np.array(l))
             if (l != -2).any():
                 ann_types[i] = 1 if (l != -2).sum() == 1 else 2
-        ann_types = torch.tensor(ann_types).long()
+        ann_types = torch.tensor(np.array(ann_types)).long()
         ann_types = ann_types[ann_types.nonzero()].flatten()
         assert len(ann_types) <= self.cfg.max_seg_num
         if len(ann_types) < self.cfg.max_seg_num:
@@ -375,6 +395,9 @@ class PanopticNarrativeGroundingValDataset(Dataset):
         grounding_instances = torch.zeros(
             [self.cfg.max_phrase_num, image_info['height'], image_info['width']]
         )
+        grounding_boxes = torch.zeros(
+            [self.cfg.max_seg_num, 4]
+        )
         j = 0
         k = 0
         for i, bbox in enumerate(localized_narrative["boxes"]):
@@ -386,6 +409,9 @@ class PanopticNarrativeGroundingValDataset(Dataset):
                 continue
             
             for b in bbox:
+                box = torch.zeros(4)
+                box[0] = image_info['width']
+                box[1] = image_info['height']
                 if b != [0] * 4:
                     flag = True
                     segment_info = [
@@ -400,16 +426,32 @@ class PanopticNarrativeGroundingValDataset(Dataset):
                     instance = torch.zeros([image_info['height'],
                             image_info['width']])
                     instance[panoptic_segm == segment_info["id"]] = 1
+
                     if j in cur_phrase_interval[:-1]:
                         grounding_instances[k, :] += instance
+                        
+                        if box[0] > b[0]:
+                            box[0] = b[0]
+                        if box[1] > b[1]:
+                            box[1] = b[1]
+                        if box[2] < b[0] + b[2]:
+                            box[2] = b[0] + b[2]
+                        if box[3] < b[1] + b[3]:
+                            box[3] = b[1] + b[3]
+
                         ann_categories[k] = 1 if \
                                 segment_cat["isthing"] else 2
             if j in cur_phrase_interval[:-1]:
+                box[2] = (box[2]-box[0]) / image_info['width']
+                box[3] = (box[3]-box[1]) / image_info['height']
+                box[0] = box[0] / image_info['width']
+                box[1] = box[1] / image_info['height']
+                grounding_boxes[k, :] = box
                 k = k + 1   
             j = j + 1
         assert k == len(cur_phrase_interval) - 1
         # self.vis_item(fpn_data['image'], grounding_instances, idx)
-        grounding_instances = {'gt': grounding_instances}
+        grounding_instances = {'gt': grounding_instances, 'gt_box': grounding_boxes}
         ret_noun_vector = {'inter': cur_phrase_interval}
 
         return caption, grounding_instances, \

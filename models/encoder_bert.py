@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import numpy as np
 from models.tokenization import BertTokenizer
 from models.modeling import VISUAL_CONFIG, BertPreTrainedModel
 from models.modeling import BertEmbeddings, CrossEncoder, BertPooler
@@ -112,9 +112,9 @@ class BertEncoder(nn.Module):
     def forward(self, sents):
         train_features = convert_sents_to_features(
             sents, self.max_seq_length, self.tokenizer)
-        input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long).cuda()
-        input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long).cuda()
-        segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long).cuda()
+        input_ids = torch.tensor(np.array([f.input_ids for f in train_features]), dtype=torch.long).cuda()
+        input_mask = torch.tensor(np.array([f.input_mask for f in train_features]), dtype=torch.long).cuda()
+        segment_ids = torch.tensor(np.array([f.segment_ids for f in train_features]), dtype=torch.long).cuda()
         #shape=[60,230]
 
         output_lang = self.model(input_ids, segment_ids, input_mask)

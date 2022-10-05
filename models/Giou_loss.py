@@ -47,12 +47,14 @@ def giou_loss(pred, target, eps=1e-7):
     Return:
         Tensor: Loss tensor.
     """
-    pred[..., 2] = pred[..., 2] + pred[..., 0]
-    pred[..., 3] = pred[..., 3] + pred[..., 1]
+    preds = pred
+    preds[..., 2] = pred[..., 2] + pred[..., 0]
+    preds[..., 3] = pred[..., 3] + pred[..., 1]
 
-    target[..., 2] = target[..., 2] + target[..., 0]
-    target[..., 3] = target[..., 3] + target[..., 1]
+    targets = target
+    targets[..., 2] = target[..., 2] + target[..., 0]
+    targets[..., 3] = target[..., 3] + target[..., 1]
 
-    gious = bbox_overlaps(pred, target, mode='giou', is_aligned=True, eps=eps)
+    gious = bbox_overlaps(preds, targets, mode='giou', is_aligned=True, eps=eps)
     loss = 1 - gious
     return loss

@@ -71,7 +71,7 @@ class MaskDecoder(nn.Module):
             
 
             temp_box, mask_kernel, out = l(out, encoder_output.view(b, -1, h*w).permute(0, 2, 1), [h, w], attn_map, None)
-            attn_map, mask = self._map(encoder_output, out, i)
+            attn_map, mask = self._map(encoder_output, mask_kernel, i)
 
             box = box + torch.exp(temp_box)
             masks.append(self.upsample2(mask))

@@ -2,6 +2,14 @@ from .loss_utils import bbox_overlaps
 import torch.nn as nn
 import torch
 
+def bbox_switch(bbox):
+    """ change bbox x y w h to x y x y
+    """
+
+    x, y, w, h = bbox.split((1, 1, 1, 1), dim=-1)
+    bbox_new = [(x), (y), (x+w), (y+h)]
+    return torch.cat(bbox_new, dim=-1)
+
 class GIoULoss(nn.Module):
 
     def __init__(self, eps=1e-6, reduction='mean', loss_weight=1.0):
@@ -47,13 +55,9 @@ def giou_loss(pred, target, eps=1e-7):
     Return:
         Tensor: Loss tensor.
     """
-    preds = pred
-    preds[..., 2] = pred[..., 2] + pred[..., 0]
-    preds[..., 3] = pred[..., 3] + pred[..., 1]
 
-    targets = target
-    targets[..., 2] = target[..., 2] + target[..., 0]
-    targets[..., 3] = target[..., 3] + target[..., 1]
+    preds = bbox_switch(pred)
+    targets = bbox_switch(target)
 
     gious = bbox_overlaps(preds, targets, mode='giou', is_aligned=True, eps=eps)
     loss = 1 - gious

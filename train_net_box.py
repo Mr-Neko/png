@@ -162,7 +162,7 @@ def train_epoch(train_loader, bert_encoder, fpn_model, model,
             pred = predictions[i][grad_sample]  
             pred_box = predictions_box[i][grad_sample]
 
-            loss = loss + ce_loss(pred, gt) + dice_loss(pred, gt) + l1_loss(pred_box, gt_box).mean()
+            loss = loss + ce_loss(pred, gt) + dice_loss(pred, gt) + l1_loss(pred_box, gt_box).mean() + giou_loss(pred_box, gt_box).mean()
         
 
         # Perform the backward pass.

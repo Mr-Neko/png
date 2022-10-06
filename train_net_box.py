@@ -247,7 +247,7 @@ def evaluate(val_loader, bert_encoder, fpn_model, model, epoch, cfg, logger, wri
                 lang_feat_valid[i, :cur_lang_feat.shape[0], :] = cur_lang_feat
 
         fpn_feature = fpn_model(fpn_input_data)
-        _, _, predictions = model(fpn_feature, lang_feat_valid, ann_types_val)
+        _, _, predictions, _ = model(fpn_feature, lang_feat_valid, ann_types_val)
         predictions = predictions[-1]
         # predictions = predictions.sigmoid() #[2,230,272,304]
 
